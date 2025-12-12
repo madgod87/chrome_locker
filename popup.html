@@ -1,45 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <link href="overlay.css" rel="stylesheet">
-  <style>
-    body {
-      width: 320px;
-      padding-bottom: 10px;
-      margin: 0;
-      background: #0f172a;
-      display: flex;
-      flex-direction: column;
-      font-family: 'Inter', sans-serif;
-      color: white;
-    }
-
-    .container {
-      padding: 1.5rem;
-      text-align: center;
-    }
-
-    h2 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-size: 1.25rem;
-    }
-
-    .status {
-      margin-bottom: 1.5rem;
-      color: #94a3b8;
-      font-size: 0.9rem;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="popup.css"/>
+<title>Browser Locker</title>
 </head>
-
 <body>
-  <div class="container" id="app">
-    <!-- Content injected by JS -->
+<div class="card">
+  <div class="head">
+    <div class="title">Browser Locker 🌸</div>
+    <div id="status" class="status">Loading…</div>
   </div>
-  <script src="popup.js"></script>
-</body>
 
+  <div class="controls">
+    <button id="turnOn" class="btn green"><span>Turn On</span></button>
+    <button id="turnOff" class="btn red"><span>Turn Off</span></button>
+    <button id="changePwd" class="btn blue"><span>Change Password</span></button>
+    <button id="lockNow" class="btn orange"><span>Lock Now</span></button>
+  </div>
+
+  <div id="msg" class="msg"></div>
+</div>
+
+<!-- modal for create/change password -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="modalTitle">Create password</h3>
+    <input id="oldPwd" type="password" placeholder="Current password" class="hidden" autocomplete="current-password"/>
+    <input id="pwd" type="password" placeholder="Password" autocomplete="new-password"/>
+    <input id="pwd2" type="password" placeholder="Confirm password" autocomplete="new-password"/>
+    <div class="modal-actions">
+      <button id="saveBtn" class="btn green">Save</button>
+      <button id="cancelBtn" class="btn">Cancel</button>
+    </div>
+  </div>
+</div>
+<script src="popup.js"></script>
+</body>
 </html>

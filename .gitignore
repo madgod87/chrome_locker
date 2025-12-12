@@ -1,6 +1,18 @@
+
+# System Files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Logs
 *.log
+
+# Editor Directories
+.vscode/
+.idea/
+*.swp
+
+# Dependencies (if added later)
 node_modules/
-__pycache__/
-*.pyc
+package-lock.json
+yarn.lock
