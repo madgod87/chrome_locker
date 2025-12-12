@@ -23,6 +23,7 @@ A beautiful, secure, and lightweight Chrome Extension that allows you to lock yo
 1.  Click the extension icon in the toolbar.
 2.  Set your initial password.
 3.  Click "Lock Now" or use the keyboard shortcut (default: `Ctrl+Shift+L`) to lock your screen.
+    *   *Tip: To change this shortcut, go to `chrome://extensions/shortcuts` in your address bar.*
 4.  Enjoy the butterflies while your session is secure!
 
 ## Privacy

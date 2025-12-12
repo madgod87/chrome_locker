@@ -58,15 +58,42 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 chrome.commands.onCommand.addListener((cmd) => {
-  if (cmd === 'lock-now') { chrome.storage.local.set({ session_unlocked: false }, () => lockAllTabs()); }
-});
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete') {
-    chrome.storage.local.get(['enabled', 'session_unlocked'], (res) => {
-      if (res.enabled && !res.session_unlocked) {
-        sendMsg(tabId, { action: 'lock-now' });
+  if (cmd === 'lock-now') {
+    chrome.storage.local.get(['hash'], (res) => {
+      // Only lock if a password is set to prevent lockout
+      if (res.hash) {
+        chrome.storage.local.set({ session_unlocked: false }, () => lockAllTabs());
       }
     });
   }
+});
+
+// Block all internal browser pages when locked (History, Settings, Extensions, New Tab, etc.)
+const BANNED_SCHEMES = ['chrome:', 'edge:', 'about:', 'brave:', 'vivaldi:', 'opera:'];
+
+function checkAndLock(tabId, tabUrl, status) {
+  chrome.storage.local.get(['enabled', 'session_unlocked'], (res) => {
+    if (res.enabled && !res.session_unlocked) {
+      // 1. Strict Lockdown: Close any internal browser page
+      // This covers: chrome://newtab, chrome://history, chrome://bookmarks, chrome://settings/passwords, etc.
+      if (tabUrl && BANNED_SCHEMES.some(s => tabUrl.startsWith(s))) {
+        chrome.tabs.remove(tabId).catch(() => { });
+        return;
+      }
+
+      // 2. Inject Lock Overlay on normal web pages (http/https/file)
+      // We only inject when status is 'complete' to ensure DOM is ready
+      if (status === 'complete') {
+        sendMsg(tabId, { action: 'lock-now' });
+      }
+    }
+  });
+}
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  checkAndLock(tabId, tab.url, changeInfo.status || 'loading');
+});
+
+chrome.tabs.onCreated.addListener((tab) => {
+  if (tab.id) checkAndLock(tab.id, tab.url || '', 'loading');
 });
