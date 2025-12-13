@@ -36,6 +36,7 @@ turnOn.addEventListener('click', async () => {
   const data = await chrome.storage.local.get(['hash']);
   if (!data.hash) {
     oldPwd.classList.add('hidden');
+    pwd2.classList.remove('hidden');
     openModal('Create password', async () => {
       const p = pwd.value || ''; const p2 = pwd2.value || '';
       if (!p) { showMsg('Password cannot be empty'); return; }
@@ -47,10 +48,36 @@ turnOn.addEventListener('click', async () => {
   }
 });
 
-turnOff.addEventListener('click', async () => { await chrome.storage.local.set({ enabled: false, session_unlocked: false }); await refresh(); showMsg('Disabled', true); });
+turnOff.addEventListener('click', async () => {
+  oldPwd.classList.add('hidden');
+  pwd2.classList.add('hidden');
+  openModal('Verify Password', async () => {
+    const p = pwd.value || '';
+    if (!p) { showMsg('Password cannot be empty'); return; }
+    const stored = await chrome.storage.local.get(['hash']);
+    if (stored.hash) {
+      const subH = await sha256Hex(p);
+      if (subH === stored.hash) {
+        await chrome.storage.local.set({ enabled: false, session_unlocked: false });
+        await refresh();
+        modal.classList.add('hidden');
+        showMsg('Disabled', true);
+      } else {
+        showMsg('Incorrect password');
+      }
+    } else {
+      // If no password set, just disable
+      await chrome.storage.local.set({ enabled: false, session_unlocked: false });
+      await refresh();
+      modal.classList.add('hidden');
+      showMsg('Disabled', true);
+    }
+  });
+});
 
 changePwd.addEventListener('click', async () => {
   oldPwd.classList.remove('hidden');
+  pwd2.classList.remove('hidden');
   openModal('Change password', async () => {
     const oldV = oldPwd.value || '';
     const p = pwd.value || ''; const p2 = pwd2.value || '';

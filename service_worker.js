@@ -76,8 +76,12 @@ function checkAndLock(tabId, tabUrl, status) {
     if (res.enabled && !res.session_unlocked) {
       // 1. Strict Lockdown: Close any internal browser page
       // This covers: chrome://newtab, chrome://history, chrome://bookmarks, chrome://settings/passwords, etc.
-      if (tabUrl && BANNED_SCHEMES.some(s => tabUrl.startsWith(s))) {
-        chrome.tabs.remove(tabId).catch(() => { });
+      // EXCEPTION: Allow new tab pages so the user can open a new tab (even if they can't browse securely yet)
+      const isNewTab = tabUrl === 'chrome://newtab/' || tabUrl === 'chrome://new-tab-page/' || tabUrl === 'edge://newtab/';
+
+      if (tabUrl && !isNewTab && BANNED_SCHEMES.some(s => tabUrl.startsWith(s))) {
+        // Redirect to newtab instead of closing (prevents browser shutdown if it's the only tab)
+        chrome.tabs.update(tabId, { url: 'chrome://newtab/' }).catch(() => { });
         return;
       }
 
